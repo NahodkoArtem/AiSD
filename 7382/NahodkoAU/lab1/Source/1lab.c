@@ -44,6 +44,7 @@ int Find_Close_Bracket(int len_of_text,char *text) //Функция нахожд
 
 int rec_analis(int len_of_text,char *text) //Рекурсивная функция проверки текста на понятие "скобки"
 {
+ printf("%s\n", text);
  if(len_of_text<1)
    return 0;
  if(*text=='A' && len_of_text==1)
