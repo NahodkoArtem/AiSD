@@ -6,11 +6,18 @@
 #include <string>
 #include <stdio.h>
 #define RED "\033[0;31m"
-#define COL "\033[0;34m"
+#define COL "\033[0;33m"
 #define COL2 "\033[0;32m"
+#define COL3 "\033[0;34m"
 #define NONE "\033[0m"
 using namespace std;
 using namespace binTree_modul;
+
+int maxDepth(binTree b)
+{
+if (b==NULL) return 0;
+return max(maxDepth(b->lt),maxDepth(b->rt))+1;
+}
 
 void displayBT(binTree b, int n) //функция вывода дерева
 {	// n  － уровень узла
@@ -24,6 +31,31 @@ void displayBT(binTree b, int n) //функция вывода дерева
 		}
 	}
 	else {};
+}
+
+void displayBT_r(binTree b, int n, int max_level) //Функция поуровневого вывода дерева
+{
+        if (b != NULL)
+        {
+           if(n<=max_level)			//Если текущий уровень меньше либо равен максимально возможному на этом шаге
+           {
+		if(n==max_level) printf(" %s%c%s", RED, RootBT(b), NONE);
+		else cout << ' ' << RootBT(b);  //Вывод текущего элемента
+                if (!isNull(Right(b)))
+                {
+		 if(n<=max_level)
+		 displayBT_r(Right(b),n+1, max_level);
+		}
+                else cout << endl; // вниз
+                if(!isNull(Left(b))) {
+                        for (int i=1;i<=n;i++) cout << "  "; // вправо
+			if(n<=max_level)
+                        displayBT_r(Left(b), n + 1, max_level);
+                }
+           }
+        }
+        else {};
+cout << endl;
 }
 
 void printKLP (binTree b)  //функция вывода узлов дерева в порядке КЛП
@@ -84,6 +116,9 @@ for(int i=0; s_count[i]!='\0'; i++){	//Подсчитаем количество
    return 0;
  }
 fin.seekg(0);				//Передвигаем каретку на начало потока
+int action=0;
+cout << "Выберите версию программы: 1 - с промежуточными выводами, другой символ - без промежуточных выводов" << endl;
+cin >> action;				//Переменная действия
 for(int i=0; i<count/2; i++){		//Цикл, пока не будут просмотрены все записи
   printf("%sДерево №%d имеет:%s\n", COL2, i+1, NONE);
   getline(fin, str_lkp);		//Отделяем функцией getline из файла input.txt - строчную ЛКП запись узлов
@@ -100,12 +135,28 @@ for(int i=0; i<count/2; i++){		//Цикл, пока не будут просмо
   cout << "ЛПК запись дерева: ";
   cout << str_lpk << endl;
   binTree Tree = recovery(str_lkp, str_lpk, str_lpk.length()-1);	//Передаём полученные параметры в функцию построения дерева
+  int m=maxDepth(Tree);
+  if(action==1)								//Для промежуточных выводов
+  {
+   printf("%sВыполним поуровневый вывод дерева на консоль под углом 90 градусов!%s\n", COL, NONE);
+   printf("%sУзлы на новых уровнях будут выделены %sкрасным цветом%s%s!%s\n", COL, RED, NONE, COL, NONE);
+   for(int i=1; i<=m; i++)
+   {
+    if(i==m) printf("%sДерево достигло максимального уровня = %d!%s\n", COL3, m, NONE);
+    else
+     printf("%sПрисоединение уровня №%d%s\n", COL3, i, NONE);
+    displayBT_r(Tree, 1, i);
+   }
+  }
+  else
   displayBT(Tree, 1);	//Выведем дерево на консоль под углом 90 градусов
   cout << "КЛП запись дерева: ";
   printKLP(Tree);	//Выведем КЛП запись файла на консоль
   cout << endl;
+  destroy(Tree);
   }
 }
+if(action!=1)
 printf("%sОбратите внимание, изображение дерева повёрнуто на 90 градусов влево!!!%s\n", COL2, NONE);
  return 0;
 }
